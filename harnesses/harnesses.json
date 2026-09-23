@@ -39,7 +39,8 @@
       "tool_prefix": "mcp__zo__",
       "persona": "Claude Code",
       "vendor": "Anthropic",
-      "acp": "claude-agent-acp (npm @agentclientprotocol/claude-agent-acp)"
+      "acp": "claude-agent-acp (npm @agentclientprotocol/claude-agent-acp)",
+      "tool_note": ""
     },
     "codex": {
       "display": "Codex CLI",
@@ -72,7 +73,8 @@
       "tool_prefix": "",
       "persona": "Codex CLI",
       "vendor": "OpenAI",
-      "acp": "codex-acp (npm @agentclientprotocol/codex-acp)"
+      "acp": "codex-acp (npm @agentclientprotocol/codex-acp)",
+      "tool_note": "Codex may load MCP tools lazily: if the zo tools are not listed, find them with `tool_search` (query \"zo\") before concluding they are unavailable."
     },
     "gemini": {
       "display": "Gemini CLI",
@@ -105,7 +107,8 @@
       "tool_prefix": "",
       "persona": "Gemini CLI",
       "vendor": "Google",
-      "acp": "gemini --acp"
+      "acp": "gemini --acp",
+      "tool_note": ""
     },
     "kimi": {
       "display": "Kimi Code CLI",
@@ -139,7 +142,8 @@
       "tool_prefix": "mcp__zo__",
       "persona": "Kimi Code CLI",
       "vendor": "Moonshot AI",
-      "acp": "kimi acp"
+      "acp": "kimi acp",
+      "tool_note": ""
     },
     "opencode": {
       "display": "OpenCode CLI",
@@ -172,7 +176,8 @@
       "tool_prefix": "zo_",
       "persona": "OpenCode CLI",
       "vendor": "the OpenCode project (SST)",
-      "acp": "opencode acp"
+      "acp": "opencode acp",
+      "tool_note": ""
     },
     "hermes": {
       "display": "Hermes Agent",
@@ -208,7 +213,8 @@
       "acp": "hermes acp",
       "persona_aliases": [
         "Hermes"
-      ]
+      ],
+      "tool_note": ""
     },
     "pi": {
       "display": "Pi Coding Agent",
@@ -251,7 +257,8 @@
       "tool_prefix": "zo_",
       "persona": "Pi Coding Agent",
       "vendor": "Earendil Works",
-      "acp": "acpx pi (npm acpx + pi-acp)"
+      "acp": "acpx pi (npm acpx + pi-acp)",
+      "tool_note": ""
     }
   }
 }

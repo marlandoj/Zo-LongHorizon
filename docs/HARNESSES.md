@@ -50,7 +50,9 @@ not by reading its docs.
   A Zo host runs everything as root. The runner exports it for every harness.
 - **Codex** connected to the zo server but reported the tool "not available" until its MCP
   startup timeout was raised from the 10 s default to 90 s. The first `tools/list` against
-  a cold endpoint takes longer than that.
+  a cold endpoint takes longer than that. Codex also loads MCP tools lazily: in one run of
+  three the model answered "not available" without looking, so generated prompts for Codex
+  tell it to use `tool_search` before concluding a zo tool is missing.
 - **Gemini** works with its own default model; pinning a retired model name returns 404, so
   the runner passes `-m` only when you set one.
 - **Kimi** rejects `--auto` alongside `--prompt`. Prompt mode is already non-interactive.

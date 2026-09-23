@@ -8,7 +8,7 @@ Keep it accurate.
 
 Zo capabilities come from the MCP server named `zo`{{TOOL_HINT}}. Email must be sent with
 that server's `send_email_to_user` tool from inside this process — the automation's
-`delivery_method` sees an empty Zo turn and will deliver nothing.
+`delivery_method` sees an empty Zo turn and will deliver nothing.{{TOOL_NOTE}}
 
 Run every step synchronously in the foreground and do not end your turn while any
 work is outstanding. This is a one-shot headless run: the process exits the moment

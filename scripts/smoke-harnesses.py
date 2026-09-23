@@ -32,7 +32,8 @@ from zolib import KIT, harnesses, select
 
 RUNNER = os.path.join(KIT, "assets", "harness-detached.sh")
 PROMPT = ("You are a smoke test. Call the Zo MCP server's get_space_settings tool (it is an MCP "
-          "tool on the server named zo; do not use a shell, grep, or curl). Then reply with exactly "
+          "tool on the server named zo; do not use a shell, grep, or curl; if it is not listed directly, "
+          "search for it with any tool-search facility you have). Then reply with exactly "
           "one line: ZO_OK <the site title value it returned>. If you cannot reach that tool, reply "
           "exactly: ZO_UNAVAILABLE <reason>, and do nothing else.")
 

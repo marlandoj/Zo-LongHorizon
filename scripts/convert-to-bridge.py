@@ -97,6 +97,7 @@ def main() -> int:
                          ("{{HARNESS_DISPLAY}}", h["display"]),
                          ("{{TOOL_HINT}}", f" (its tools appear here as `{h['tool_prefix']}<tool>`)"
                           if h["tool_prefix"] else ""),
+                         ("{{TOOL_NOTE}}", ("\n" + h["tool_note"]) if h.get("tool_note") else ""),
                          ("{{RUNTIME}}", args.runtime), ("{{PURPOSE}}", purpose), ("{{WORK}}", body),
                          ("{{DELIVERY}}", "Deliver exactly as the work above specifies, from inside this "
                           "process, each send wrapped in `side-effect-intent` / `side-effect-resolve`.")):
