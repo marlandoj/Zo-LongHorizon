@@ -154,7 +154,7 @@ runtime comfortably under 120 s. When in doubt, bridge it.
 | `scripts/set-bridge-rule.py` | Create or update the standing Zo rule, idempotently |
 | `scripts/new-bridge-automation.py` | Scaffold a new bridge-hosted automation from a spec |
 | `scripts/convert-to-bridge.py` | Move an existing contract-carrying automation onto the bridge |
-| `scripts/render-infographic.py` | Render the architecture infographic to PNG |
+| `scripts/render-infographic.py` | Render an infographic to PNG (`--html assets/infographic/bridge-workflows.html --out …png` for the workflow diagram) |
 | `scripts/zolib.py` | Zo MCP over HTTP, Python-repr field parsing, harness registry |
 | `scripts/zo-mcp.py` | One-shot Zo MCP tool call from the shell |
 | `assets/bridge-launch.sh` | The launcher a Zo automation calls |

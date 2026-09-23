@@ -4,6 +4,8 @@
 
 ![Architecture: the harness owns the loop, Zo MCP is the tool server](assets/infographic/bridge-architecture.png)
 
+![Workflows: automation and chat both launch through bridge-launch.sh, a detached harness owns the loop, and Zo MCP delivers](assets/infographic/bridge-workflows.png)
+
 Zo Computer enforces a **120-second ceiling on every model call** and a session cap on every
 run. A scheduled automation whose work exceeds either one dies with nothing surfaced — no
 error, no email, and a dead run that reads exactly like a quiet success.

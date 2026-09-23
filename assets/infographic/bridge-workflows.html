@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Two Doors, One Bridge</title>
+<style>
+  :root{
+    --navy:#070d1c; --navy2:#0c1528; --panel:#101b33; --line:rgba(148,178,255,.14);
+    --ink:#eaf0ff; --mute:#8ea3c9; --faint:#6a7fa5;
+    --emerald:#2fd9a0; --cyan:#3fc8ff; --amber:#ffb84d; --violet:#a78bfa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{width:1400px; background:var(--navy); color:var(--ink);
+    font-family:"Inter","Inter Display",system-ui,sans-serif; -webkit-font-smoothing:antialiased}
+  .page{padding:58px 62px 46px; position:relative; overflow:hidden}
+  .page::before{content:""; position:absolute; inset:-340px -240px auto -240px; height:760px;
+    background:radial-gradient(60% 52% at 22% 0%,rgba(255,184,77,.13),transparent 70%),
+               radial-gradient(52% 46% at 82% 8%,rgba(167,139,250,.14),transparent 70%)}
+  .page>*{position:relative}
+  code,.mono{font-family:"DejaVu Sans Mono",ui-monospace,monospace}
+
+  .eyebrow{font-size:13px; letter-spacing:.24em; text-transform:uppercase; color:var(--cyan);
+    font-weight:700; display:flex; align-items:center; gap:13px}
+  .eyebrow::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba(63,200,255,.5),transparent)}
+  h1{font-size:63px; line-height:1.02; letter-spacing:-.033em; font-weight:800; margin:20px 0 0}
+  h1 em{font-style:normal;background:linear-gradient(95deg,var(--amber),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{margin-top:20px; font-size:21px; line-height:1.5; color:var(--mute); max-width:1060px}
+  .lede b{color:var(--ink); font-weight:600}
+
+  .lanes{display:grid; grid-template-columns:1fr 1fr; gap:26px; margin-top:44px}
+  .lane{background:linear-gradient(180deg,var(--panel),var(--navy2)); border:1px solid var(--line); border-radius:20px; padding:26px 26px 22px}
+  .lane.auto{border-color:rgba(255,184,77,.34); box-shadow:0 28px 70px -44px rgba(255,184,77,.5)}
+  .lane.chat{border-color:rgba(167,139,250,.38); box-shadow:0 28px 70px -44px rgba(167,139,250,.55)}
+  .tag{display:inline-flex; align-items:center; gap:8px; font-size:11.5px; font-weight:800; letter-spacing:.15em; text-transform:uppercase; padding:6px 11px; border-radius:999px}
+  .auto .tag{color:var(--amber); background:rgba(255,184,77,.11); border:1px solid rgba(255,184,77,.34)}
+  .chat .tag{color:var(--violet); background:rgba(167,139,250,.12); border:1px solid rgba(167,139,250,.38)}
+  .lane h2{font-size:27px; letter-spacing:-.02em; margin:15px 0 4px; font-weight:750}
+  .lane .sub{font-size:14.5px; color:var(--faint); line-height:1.45; min-height:42px}
+
+  .flow{margin-top:18px; display:flex; flex-direction:column}
+  .step{display:grid; grid-template-columns:34px 1fr auto; gap:13px; align-items:start;
+    border:1px solid var(--line); border-radius:13px; padding:13px 15px; background:rgba(255,255,255,.028)}
+  .num{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:15px}
+  .auto .num{background:rgba(255,184,77,.14); color:var(--amber)}
+  .chat .num{background:rgba(167,139,250,.15); color:var(--violet)}
+  .step .t{font-size:15.5px; font-weight:650; line-height:1.3}
+  .step .t code{font-size:14px; color:#dfe8ff}
+  .step .d{font-size:13px; color:var(--mute); margin-top:4px; line-height:1.45}
+  .step .d code{font-size:12px; color:var(--ink)}
+  .chip{font-size:11px; font-weight:750; letter-spacing:.08em; text-transform:uppercase; padding:5px 9px; border-radius:8px; white-space:nowrap; margin-top:3px}
+  .chip.fast{color:var(--emerald); background:rgba(47,217,160,.1); border:1px solid rgba(47,217,160,.3)}
+  .chip.long{color:var(--cyan); background:rgba(63,200,255,.08); border:1px solid rgba(63,200,255,.28)}
+  .chip.out{color:var(--amber); background:rgba(255,184,77,.08); border:1px solid rgba(255,184,77,.28)}
+  .chat .chip.out{color:var(--violet); background:rgba(167,139,250,.09); border-color:rgba(167,139,250,.3)}
+  .step.owner{background:linear-gradient(94deg,rgba(47,217,160,.14),rgba(63,200,255,.08)); border-color:rgba(47,217,160,.45)}
+  .arrow{height:20px; display:flex; align-items:center; padding-left:31px; color:var(--faint); font-size:13px}
+  .arrow.return{color:var(--emerald)}
+
+  .lines{margin-top:16px; border-top:1px dashed var(--line); padding-top:14px}
+  .lines .l{font-family:"DejaVu Sans Mono",monospace; font-size:12px; color:var(--mute); line-height:1.75; white-space:nowrap}
+  .lines .l b{color:var(--emerald); font-weight:700}
+  .lines .l i{font-style:normal; color:var(--amber)}
+  .lines .cap{font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); font-weight:700; margin-bottom:6px}
+
+  .spine{margin-top:30px; background:var(--navy2); border:1px solid var(--line); border-radius:20px; padding:26px 28px 24px}
+  .spine h3{font-size:13px; letter-spacing:.2em; text-transform:uppercase; color:var(--cyan); font-weight:750}
+  .spine .row{display:grid; grid-template-columns:1.55fr 70px 1fr; align-items:center; gap:0; margin-top:18px}
+  .box{border-radius:16px; padding:18px 20px}
+  .box.h{background:linear-gradient(94deg,rgba(47,217,160,.14),rgba(63,200,255,.07)); border:1px solid rgba(47,217,160,.45)}
+  .box.z{background:rgba(63,200,255,.075); border:1px solid rgba(63,200,255,.34)}
+  .box .k{font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; font-weight:800}
+  .box.h .k{color:var(--emerald)} .box.z .k{color:var(--cyan)}
+  .box .v{font-size:14px; color:var(--mute); margin-top:6px; line-height:1.45}
+  .pills{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+  .pill{font-family:"DejaVu Sans Mono",monospace; font-size:13px; padding:6px 11px; border-radius:9px; background:rgba(7,13,28,.55); border:1px solid var(--line); color:var(--ink)}
+  .box.z .pill{font-family:"Inter",system-ui,sans-serif; font-size:13px; font-weight:600}
+  .mcp{display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--cyan); gap:4px}
+  .mcp .a{font-size:26px; line-height:1}
+  .mcp .m{font-size:10.5px; letter-spacing:.16em; font-weight:800; text-transform:uppercase}
+
+  .contract{margin-top:18px; display:grid; grid-template-columns:repeat(5,1fr); gap:10px}
+  .c{border:1px solid var(--line); border-radius:11px; padding:11px 12px; background:rgba(255,255,255,.025)}
+  .c code{font-size:12.5px; color:var(--emerald); font-weight:700}
+  .c div{font-size:12px; color:var(--mute); margin-top:4px; line-height:1.4}
+
+  .gains{display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin-top:30px}
+  .g{border:1px solid var(--line); border-radius:16px; padding:18px 18px 16px; background:linear-gradient(180deg,var(--panel),var(--navy2))}
+  .g .big{font-size:34px; font-weight:800; letter-spacing:-.03em}
+  .g .big s{color:var(--faint); font-size:22px; text-decoration-color:rgba(255,107,107,.8); margin-right:6px}
+  .g .lbl{font-size:13.5px; color:var(--mute); margin-top:6px; line-height:1.4}
+  .g:nth-child(1) .big{color:var(--emerald)} .g:nth-child(2) .big{color:var(--cyan)}
+  .g:nth-child(3) .big{color:var(--amber)} .g:nth-child(4) .big{color:var(--violet)}
+
+  footer{margin-top:34px; padding-top:19px; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:flex-end; gap:24px}
+  footer .l{font-size:13.5px; color:var(--faint); line-height:1.55}
+  footer .l b{color:var(--mute)}
+  footer .r{font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint); text-align:right; font-weight:700; white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">zo-bridge-kit · workflows</div>
+  <h1>Two doors in. <em>One bridge</em> does the work.</h1>
+  <p class="lede">A scheduled automation and a chat request take the same path: the Zo turn <b>launches and returns in about a second</b>, a detached agent CLI <b>owns the loop for as long as the job needs</b>, and Zo comes back in as the <b>MCP tool server</b> that sends the email, texts the result, and writes the files.</p>
+
+  <div class="lanes">
+    <section class="lane auto">
+      <span class="tag">Automation workflow</span>
+      <h2>Runs on a schedule, reports on its own</h2>
+      <p class="sub">The automation's instruction is a single launcher line. All of its real work lives in a prompt file under <code>prompts/</code>.</p>
+      <div class="flow">
+        <div class="step"><div class="num">1</div><div><div class="t">Scheduler tick</div><div class="d">Zo fires the automation from its rrule</div></div><span class="chip fast">t = 0</span></div>
+        <div class="arrow">↓</div>
+        <div class="step"><div class="num">2</div><div><div class="t"><code>bridge-launch.sh --harness &lt;h&gt;</code></div><div class="d">Overlap guard + optional <code>--preflight</code>. Prints one line and returns.</div></div><span class="chip fast">Zo turn ~1 s</span></div>
+        <div class="arrow">↓</div>
+        <div class="step"><div class="num">3</div><div><div class="t"><code>harness-detached.sh</code></div><div class="d"><code>setsid nohup</code>: outlives the turn. Pidfile, log, receipt.</div></div><span class="chip long">detached</span></div>
+        <div class="arrow">↓</div>
+        <div class="step owner"><div class="num">4</div><div><div class="t">The harness owns the loop</div><div class="d">Runs the prompt and the resilience contract, bounded by <code>BRIDGE_TIMEOUT</code> (3600 s)</div></div><span class="chip long">minutes, not 120 s</span></div>
+        <div class="arrow return">↕ zo MCP</div>
+        <div class="step"><div class="num">5</div><div><div class="t">Delivers from inside the bridge</div><div class="d"><code>send_email_to_user</code>, SMS, files, then writes <code>outcome: ok</code></div></div><span class="chip out">delivered</span></div>
+      </div>
+      <div class="lines">
+        <div class="cap">What the Zo turn reports: one line</div>
+        <div class="l"><b>DETACHED</b> job=crystallize-drain harness=claude pid=…</div>
+        <div class="l"><i>SKIP overlap</i> · <i>SKIP nowork</i> · ERROR</div>
+      </div>
+    </section>
+
+    <section class="lane chat">
+      <span class="tag">Chat workflow</span>
+      <h2>Ask once, get the answer where you are</h2>
+      <p class="sub">A long job asked for in Zo chat (web, SMS, email) is handed to a harness, so the conversation never waits on it.</p>
+      <div class="flow">
+        <div class="step"><div class="num">1</div><div><div class="t">You ask in Zo chat</div><div class="d">"Research this and email me the report," from web, SMS, or email</div></div><span class="chip fast">t = 0</span></div>
+        <div class="arrow">↓</div>
+        <div class="step"><div class="num">2</div><div><div class="t">Chat persona writes a brief, runs <code>bridge-launch.sh</code></div><div class="d">Same launcher, same <code>--harness &lt;h&gt;</code>, a prompt file per job</div></div><span class="chip fast">reply ~1 s</span></div>
+        <div class="arrow">↓</div>
+        <div class="step"><div class="num">3</div><div><div class="t"><code>harness-detached.sh</code></div><div class="d">Chat is free again. The job keeps running if you close the tab.</div></div><span class="chip long">detached</span></div>
+        <div class="arrow">↓</div>
+        <div class="step owner"><div class="num">4</div><div><div class="t">The harness owns the loop</div><div class="d">Subagents, skills, and context management of the chosen CLI</div></div><span class="chip long">no session cap</span></div>
+        <div class="arrow return">↕ zo MCP</div>
+        <div class="step"><div class="num">5</div><div><div class="t">Answer comes back to you</div><div class="d">Email or SMS on arrival, artifacts saved in the workspace</div></div><span class="chip out">delivered</span></div>
+      </div>
+      <div class="lines">
+        <div class="cap">What chat shows right away</div>
+        <div class="l"><b>DETACHED</b> job=research-brief harness=codex log=/dev/shm/…</div>
+        <div class="l">Receipt: <i>.zo/cli-bridge-runs/&lt;job&gt;-&lt;ts&gt;.json</i></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="spine">
+    <h3>Shared by both workflows</h3>
+    <div class="row">
+      <div class="box h">
+        <div class="k">Any of seven harnesses owns the loop</div>
+        <div class="v">Pick one per job with <code>--harness</code>. Each has passed a live detached Zo tool call.</div>
+        <div class="pills">
+          <span class="pill">claude</span><span class="pill">codex</span><span class="pill">gemini</span><span class="pill">kimi</span><span class="pill">opencode</span><span class="pill">hermes</span><span class="pill">pi</span>
+        </div>
+      </div>
+      <div class="mcp"><div class="a">⇄</div><div class="m">zo MCP</div></div>
+      <div class="box z">
+        <div class="k">Zo is the tool server</div>
+        <div class="v"><code>api.zo.computer/mcp</code> with a bearer token</div>
+        <div class="pills">
+          <span class="pill">Email</span><span class="pill">SMS</span><span class="pill">Files</span><span class="pill">Shell</span><span class="pill">Apps</span>
+        </div>
+      </div>
+    </div>
+    <div class="contract">
+      <div class="c"><code>begin</code><div>Run record opened inside the bridge</div></div>
+      <div class="c"><code>checkpoint</code><div>Resumable progress on disk</div></div>
+      <div class="c"><code>side-effect-intent</code><div>Declared before any email, trade, or deploy</div></div>
+      <div class="c"><code>side-effect-resolve</code><div>Never repeats an unresolved send</div></div>
+      <div class="c"><code>finish</code><div>Verdict is <code>outcome</code>, not exit code</div></div>
+    </div>
+  </section>
+
+  <div class="gains">
+    <div class="g"><div class="big">~1 s</div><div class="lbl">Zo turn: launch, print one line, return</div></div>
+    <div class="g"><div class="big"><s>120 s</s>3600 s</div><div class="lbl">Per-call ceiling replaced by the bridge's own bound</div></div>
+    <div class="g"><div class="big"><s>~30 min</s>none</div><div class="lbl">Chat session cap no longer governs the work</div></div>
+    <div class="g"><div class="big">7</div><div class="lbl">Harnesses, one launcher, one tool server</div></div>
+  </div>
+
+  <footer>
+    <div class="l"><b>zo-bridge-kit</b>: the launcher, the detached runner, Zo MCP setup for every harness,<br>and the bundled resilience runtime. <code>bridge-launch.sh</code> · <code>harness-detached.sh</code> · <code>smoke-harnesses.py</code></div>
+    <div class="r">Harness owns the loop<br>Zo serves the tools</div>
+  </footer>
+</div>
+</body>
+</html>
