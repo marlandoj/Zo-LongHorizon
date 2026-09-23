@@ -134,8 +134,10 @@ def main() -> int:
             backup = f"{dst}.pre-kit-{stamp}"
             shutil.copy2(dst, backup)
             print(f"backup     {backup}")
-        shutil.copyfile(sources[name], dst)
-        os.chmod(dst, 0o755 if name in EXECUTABLE else 0o644)
+        tmp = f"{dst}.tmp-{os.getpid()}"
+        shutil.copyfile(sources[name], tmp)
+        os.chmod(tmp, 0o755 if name in EXECUTABLE else 0o644)
+        os.replace(tmp, dst)
         print(f"installed  {dst}")
     if want_skill_md:
         shutil.copyfile(os.path.join(VENDOR, "SKILL.md"), skill_md)
