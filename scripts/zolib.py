@@ -158,3 +158,43 @@ def rows(text: str) -> list[str]:
     except json.JSONDecodeError:
         return []
     return [r for r in parsed if isinstance(r, str)]
+
+
+KIT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REGISTRY = os.path.join(KIT, "harnesses", "harnesses.json")
+
+
+def harnesses() -> dict:
+    """Load the harness registry: install, headless, MCP, and persona facts per CLI."""
+    with open(REGISTRY, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def select(names: str | None) -> list[str]:
+    """Resolve a comma-separated harness list, or every harness for None / 'all'."""
+    known = list(harnesses()["harnesses"])
+    if not names or names == "all":
+        return known
+    picked = [n.strip() for n in names.split(",") if n.strip()]
+    unknown = [n for n in picked if n not in known]
+    if unknown:
+        raise SystemExit(f"unknown harness(es): {', '.join(unknown)} (known: {', '.join(known)})")
+    return picked
+
+
+def expand(path: str, workspace: str = "/home/workspace") -> str:
+    return os.path.expanduser(path.replace("{workspace}", workspace))
+
+
+def list_rows(tool_name: str, timeout: int = 300) -> list[str]:
+    """List records from a Zo list_* tool, refusing an unparseable reply.
+
+    A transport fault or timeout comes back as error text, which `rows()` parses as an
+    empty list. A caller that then decides "nothing exists, create it" duplicates every
+    record, so an empty parse of a non-empty reply is an error here.
+    """
+    raw = tool(tool_name, {}, timeout=timeout)
+    parsed = rows(raw)
+    if not parsed and raw.strip() not in ("[]", ""):
+        raise SystemExit(f"{tool_name} returned no parseable records: {raw.strip()[:200]}")
+    return parsed

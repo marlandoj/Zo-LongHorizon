@@ -1,0 +1,257 @@
+{
+  "version": 1,
+  "zo_mcp": {
+    "url": "https://api.zo.computer/mcp",
+    "token_env": "ZO_MCP_API_KEY"
+  },
+  "harnesses": {
+    "claude": {
+      "display": "Claude Code",
+      "binary": "claude",
+      "install": [
+        "npm",
+        "install",
+        "-g",
+        "@anthropic-ai/claude-code"
+      ],
+      "version": [
+        "claude",
+        "--version"
+      ],
+      "auth": "claude login  (or set ANTHROPIC_API_KEY)",
+      "model_env": "CLAUDE_CODE_MODEL",
+      "default_model": "claude-opus-5",
+      "headless": "claude -p <prompt> --output-format text --dangerously-skip-permissions --model <model>",
+      "root_env": {
+        "IS_SANDBOX": "1"
+      },
+      "mcp": {
+        "format": "claude-json",
+        "path": "{workspace}/.mcp.json",
+        "verify": [
+          "claude",
+          "mcp",
+          "get",
+          "zo"
+        ],
+        "verify_needle": "zo"
+      },
+      "tool_prefix": "mcp__zo__",
+      "persona": "Claude Code",
+      "vendor": "Anthropic",
+      "acp": "claude-agent-acp (npm @agentclientprotocol/claude-agent-acp)"
+    },
+    "codex": {
+      "display": "Codex CLI",
+      "binary": "codex",
+      "install": [
+        "npm",
+        "install",
+        "-g",
+        "@openai/codex"
+      ],
+      "version": [
+        "codex",
+        "--version"
+      ],
+      "auth": "codex login  (or set OPENAI_API_KEY)",
+      "model_env": "CODEX_MODEL",
+      "default_model": "",
+      "headless": "codex exec --dangerously-bypass-approvals-and-sandbox --skip-git-repo-check --color never [-m <model>] <prompt>",
+      "root_env": {},
+      "mcp": {
+        "format": "codex-toml",
+        "path": "~/.codex/config.toml",
+        "verify": [
+          "codex",
+          "mcp",
+          "list"
+        ],
+        "verify_needle": "zo"
+      },
+      "tool_prefix": "",
+      "persona": "Codex CLI",
+      "vendor": "OpenAI",
+      "acp": "codex-acp (npm @agentclientprotocol/codex-acp)"
+    },
+    "gemini": {
+      "display": "Gemini CLI",
+      "binary": "gemini",
+      "install": [
+        "npm",
+        "install",
+        "-g",
+        "@google/gemini-cli"
+      ],
+      "version": [
+        "gemini",
+        "--version"
+      ],
+      "auth": "set GEMINI_API_KEY (or gemini, then /auth)",
+      "model_env": "GEMINI_MODEL",
+      "default_model": "",
+      "headless": "gemini -p <prompt> [-m <model>] --yolo --sandbox=false --output-format text",
+      "root_env": {},
+      "mcp": {
+        "format": "gemini-json",
+        "path": "~/.gemini/settings.json",
+        "verify": [
+          "gemini",
+          "mcp",
+          "list"
+        ],
+        "verify_needle": "zo"
+      },
+      "tool_prefix": "",
+      "persona": "Gemini CLI",
+      "vendor": "Google",
+      "acp": "gemini --acp"
+    },
+    "kimi": {
+      "display": "Kimi Code CLI",
+      "binary": "kimi",
+      "install": [
+        "npm",
+        "install",
+        "-g",
+        "@moonshot-ai/kimi-code"
+      ],
+      "version": [
+        "kimi",
+        "--version"
+      ],
+      "auth": "kimi login  (or set KIMI_API_KEY)",
+      "model_env": "KIMI_MODEL",
+      "default_model": "",
+      "headless": "kimi --prompt <prompt> [-m <model>]",
+      "root_env": {
+        "KIMI_DISABLE_TELEMETRY": "1"
+      },
+      "mcp": {
+        "format": "kimi-json",
+        "path": "~/.kimi-code/mcp.json",
+        "verify": [
+          "kimi",
+          "doctor"
+        ],
+        "verify_needle": ""
+      },
+      "tool_prefix": "mcp__zo__",
+      "persona": "Kimi Code CLI",
+      "vendor": "Moonshot AI",
+      "acp": "kimi acp"
+    },
+    "opencode": {
+      "display": "OpenCode CLI",
+      "binary": "opencode",
+      "install": [
+        "npm",
+        "install",
+        "-g",
+        "opencode-ai"
+      ],
+      "version": [
+        "opencode",
+        "--version"
+      ],
+      "auth": "opencode auth login",
+      "model_env": "OPENCODE_MODEL",
+      "default_model": "",
+      "headless": "opencode run --auto [-m <provider/model>] <prompt>",
+      "root_env": {},
+      "mcp": {
+        "format": "opencode-jsonc",
+        "path": "~/.config/opencode/opencode.jsonc",
+        "verify": [
+          "opencode",
+          "mcp",
+          "list"
+        ],
+        "verify_needle": "zo"
+      },
+      "tool_prefix": "zo_",
+      "persona": "OpenCode CLI",
+      "vendor": "the OpenCode project (SST)",
+      "acp": "opencode acp"
+    },
+    "hermes": {
+      "display": "Hermes Agent",
+      "binary": "hermes",
+      "install": [
+        "pip",
+        "install",
+        "git+https://github.com/NousResearch/hermes-agent.git"
+      ],
+      "version": [
+        "hermes",
+        "--version"
+      ],
+      "auth": "hermes setup  (provider keys such as OPENROUTER_API_KEY)",
+      "model_env": "HERMES_MODEL",
+      "default_model": "",
+      "headless": "hermes chat -Q --yolo [--provider <provider>] [-m <model>] -q <prompt>",
+      "root_env": {},
+      "mcp": {
+        "format": "hermes-yaml",
+        "path": "~/.hermes/config.yaml",
+        "verify": [
+          "hermes",
+          "mcp",
+          "test",
+          "zo"
+        ],
+        "verify_needle": "zo"
+      },
+      "tool_prefix": "mcp_zo_",
+      "persona": "Hermes Agent",
+      "vendor": "Nous Research",
+      "acp": "hermes acp",
+      "persona_aliases": [
+        "Hermes"
+      ]
+    },
+    "pi": {
+      "display": "Pi Coding Agent",
+      "binary": "pi",
+      "install": [
+        "npm",
+        "install",
+        "-g",
+        "@earendil-works/pi-coding-agent"
+      ],
+      "post_install": [
+        "npm",
+        "install",
+        "-g",
+        "pi-mcp-adapter@2.15.0"
+      ],
+      "version": [
+        "pi",
+        "--version"
+      ],
+      "auth": "set OPENROUTER_API_KEY (or another provider key Pi supports)",
+      "model_env": "PI_MODEL",
+      "default_model": "openrouter/moonshotai/kimi-k3",
+      "headless": "pi --print --no-session --approve --model <model> --extension <npm-root>/pi-mcp-adapter/index.ts <prompt>",
+      "root_env": {
+        "PI_TELEMETRY": "0",
+        "PI_SKIP_VERSION_CHECK": "1"
+      },
+      "mcp": {
+        "format": "pi-json",
+        "path": "~/.pi/agent/mcp.json",
+        "verify": [
+          "npm",
+          "ls",
+          "-g",
+          "pi-mcp-adapter"
+        ],
+        "verify_needle": "pi-mcp-adapter"
+      },
+      "tool_prefix": "zo_",
+      "persona": "Pi Coding Agent",
+      "vendor": "Earendil Works",
+      "acp": "acpx pi (npm acpx + pi-acp)"
+    }
+  }
+}

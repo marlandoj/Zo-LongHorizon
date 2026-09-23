@@ -14,7 +14,7 @@ are sibling entry points. They all converge on the same loop:
 entry (chat | automation | /zo/ask)
     -> Zo agent runtime          <- owns the loop, the turn, and the clock
         -> persona config
-            -> BYOK provider -> Claude ACP -> Anthropic
+            -> provider -> harness ACP adapter -> model vendor
 ```
 
 So a persona does not "use /zo/ask to reach the model". `/zo/ask` sits *above* the runtime
@@ -42,20 +42,27 @@ inside the bridge-free path just the same.
 ```
 scheduler tick
     -> bridge-launch.sh              Zo turn: ~1 s, prints one line, returns
-        -> claude-code-detached.sh   setsid nohup, survives the turn
-            -> claude -p             <- owns the agent loop
+        -> harness-detached.sh       setsid nohup, survives the turn
+            -> claude -p | codex exec | gemini -p | kimi --prompt
+               | opencode run | hermes chat -q | pi --print
+                                     <- owns the agent loop
                 <-> zo MCP           <- tools: email, SMS, files, shell, apps
-                    -> Anthropic
+                    -> the harness's own model provider
 ```
 
 The Zo turn never approaches any Zo limit because it does no model work. It runs a shell
 command and returns a status line. The agent loop happens in a process the platform is not
 metering, and Zo re-enters the picture as a **tool server** the CLI calls over MCP.
 
-What you gain: no per-call ceiling (the bridge bounds itself at `CLAUDE_CODE_TIMEOUT`,
-default 3600 s), no session cap, no ACP in the path, the full harness loop — subagents,
-skills, hooks, compaction, large context — and subscription metering rather than platform
-credits.
+Any harness works, because the only things the bridge asks of one are a one-shot headless
+mode, a way to skip interactive approvals, and an MCP client that can reach
+`https://api.zo.computer/mcp`. All seven listed in `docs/HARNESSES.md` meet that bar, and
+`scripts/smoke-harnesses.py` proves it per host with a real Zo tool call.
+
+What you gain: no per-call ceiling (the bridge bounds itself at `BRIDGE_TIMEOUT`, default
+3600 s), no session cap, no ACP in the path, the full harness loop — whatever subagents,
+skills, hooks, and context management that harness has — and the harness's own provider
+metering (often a subscription) rather than platform credits.
 
 What you must give back: the platform can no longer tell you the run failed, because from
 its side the run succeeded in one second. That is what the resilience contract inside the
@@ -81,7 +88,8 @@ classifies `owner_lost_host_restart`.
 
 ## Why the exit code is not the verdict
 
-`claude -p` ends the moment the model stops emitting output. An agent that backgrounds a
+Every harness's one-shot mode — `claude -p`, `codex exec`, `gemini -p`, and the rest —
+ends the moment the model stops emitting output. An agent that backgrounds a
 command, or ends its turn expecting a notification, exits **0** with the work unfinished
 and the contract still open. Nothing wakes it.
 
@@ -119,6 +127,16 @@ single-quote-only pattern returns `None` and a successful edit reads as a failed
 happened, and enough to make a healthy bridge look broken.
 
 **Missing environment.** A detached process inherits nothing from the Zo turn: not the
-secrets, not `ZO_MODEL`. The runner exports `IS_SANDBOX=1` (Claude Code refuses
-`--dangerously-skip-permissions` as root without it, and a Zo host runs as root) and
-`ZO_MODEL`; the prompt must source the host secrets file itself.
+secrets, not `ZO_MODEL`. The runner sources `/root/.zo_secrets` before starting the harness
+(so provider keys and `ZO_MCP_API_KEY` are present), exports `IS_SANDBOX=1` (Claude Code
+refuses `--dangerously-skip-permissions` as root without it, and a Zo host runs as root),
+and exports `ZO_MODEL` as `<harness>:<model>`. The prompt template sources the secrets file
+again as its first step, which is harmless and keeps hand-run prompts correct.
+
+**Harness-specific stalls.** Each CLI has one default that breaks unattended runs, and the
+runner or `configure-zo-mcp.py` sets the fix: Codex needs a 90 s MCP startup timeout or a
+cold Zo endpoint silently drops the server; OpenCode git-snapshots the whole working
+directory every turn and must run with `{"snapshot": false}`; Kimi rejects `--auto`
+alongside `--prompt`; Hermes' `-z` mode hides provider errors, so the runner uses
+`chat -Q -q`; Pi ships without MCP and needs `pi-mcp-adapter` loaded with `--extension`.
+Details are in `docs/HARNESSES.md`.

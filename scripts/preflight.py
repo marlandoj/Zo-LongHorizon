@@ -2,7 +2,8 @@
 """Verify a host can run CLI-bridge-hosted automations.
 
 Checks, in order of how early they fail a bridge:
-  claude binary      the bridge is `claude -p`; without it every launch is ERROR
+  harness binaries   the bridge runs a headless agent CLI; `--harness` picks which ones
+                     must be present (default: at least one of the seven)
   root + IS_SANDBOX  Claude Code refuses --dangerously-skip-permissions as root
   bun                the resilience runtime is TypeScript
   resilience runtime  the contract inside the bridge
@@ -37,13 +38,22 @@ def main() -> int:
     ap.add_argument("--runtime", default=DEFAULT_RUNTIME, help="automation-resilience.ts path")
     ap.add_argument("--run-dir", default=DEFAULT_RUN_DIR, help="bridge receipt directory")
     ap.add_argument("--skip-mcp", action="store_true", help="skip the live Zo MCP probe")
+    ap.add_argument("--harness", default="", help="comma-separated harnesses that must be installed")
     args = ap.parse_args()
 
-    claude = os.environ.get("CLAUDE_CODE_BIN") or shutil.which("claude")
-    for fallback in ("/root/.local/bin/claude", "/usr/local/bin/claude"):
-        if not claude and os.access(fallback, os.X_OK):
-            claude = fallback
-    check("claude binary", bool(claude), claude or "not found; install Claude Code CLI")
+    from zolib import harnesses, select
+
+    reg = harnesses()["harnesses"]
+    required = set(select(args.harness)) if args.harness else set()
+    found = []
+    for name, h in reg.items():
+        path = shutil.which(h["binary"])
+        if path:
+            found.append(name)
+        check(f"harness {name}", bool(path), path or f"not installed ({' '.join(h['install'])})",
+              required=name in required)
+    if not required:
+        check("any harness", bool(found), ", ".join(found) or "none installed; run install-harnesses.py --apply")
 
     if os.geteuid() == 0:
         check(
@@ -60,8 +70,8 @@ def main() -> int:
     check(
         "resilience runtime",
         os.path.isfile(args.runtime),
-        args.runtime if os.path.isfile(args.runtime) else f"missing: {args.runtime}",
-        required=False,
+        args.runtime if os.path.isfile(args.runtime) else f"missing: {args.runtime} (install.py --apply installs the bundled copy)",
+        required=True,
     )
 
     if args.skip_mcp:

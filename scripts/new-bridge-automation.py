@@ -11,7 +11,11 @@ instruction is an inert "report READY and stop", so an early fire is harmless.
 
   new-bridge-automation.py --title '[SYS] Sweep Stale Leases' \\
       --rrule 'FREQ=DAILY;BYHOUR=7;BYMINUTE=40;BYSECOND=0' \\
-      --job sweep-stale-leases --spec spec.md --apply
+      --job sweep-stale-leases --spec spec.md --harness codex --apply
+
+`--harness` picks which agent CLI hosts the run (claude, codex, gemini, kimi, opencode,
+hermes, pi); it defaults to claude. The harness must be installed, authenticated, and
+carry the zo MCP server — see install-harnesses.py and configure-zo-mcp.py.
 
 The spec is markdown with three optional `## ` sections — Purpose, Work, Delivery.
 Anything outside them is treated as Work.
@@ -24,7 +28,7 @@ import re
 import sys
 import time
 
-from zolib import field, rows, tool
+from zolib import field, harnesses, list_rows, tool
 
 KIT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE = os.path.join(KIT, "assets", "prompt-template.md")
@@ -68,6 +72,7 @@ def main() -> int:
     ap.add_argument("--job", required=True, help="slug used for pidfile, log, and receipt names")
     ap.add_argument("--spec", required=True, help="markdown file with ## Purpose / ## Work / ## Delivery")
     ap.add_argument("--preflight", help="shell test; non-zero exit means no work and no model call")
+    ap.add_argument("--harness", default="claude", help="agent CLI that hosts the run (default claude)")
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--delivery-method", default="", help="reports the launch line only; delivery is in-bridge")
     ap.add_argument("--launcher", default=DEFAULT_LAUNCHER)
@@ -84,6 +89,11 @@ def main() -> int:
               "occurrence is consumed, leaving next_run null and the automation silently dead. "
               "Arm a plain recurring rule and delete it after the observed fire.", file=sys.stderr)
         return 2
+    reg = harnesses()["harnesses"]
+    if args.harness not in reg:
+        print(f"ERROR unknown --harness {args.harness!r} (known: {', '.join(reg)})", file=sys.stderr)
+        return 2
+    h = reg[args.harness]
     if not args.title.startswith(PREFIXES):
         print(f"WARN title has no standard prefix {'/'.join(PREFIXES)}", file=sys.stderr)
     if not os.path.isfile(args.spec):
@@ -107,13 +117,13 @@ def main() -> int:
 
     # create_automation's response carries no id, so the new automation is identified by
     # diffing the fleet around the call rather than parsing the return value.
-    before = {field(r, "id") for r in rows(tool("list_automations", {}))}
+    before = {field(r, "id") for r in list_rows("list_automations")}
     tool("create_automation", {
         "rrule": args.rrule, "instruction": PLACEHOLDER, "model": args.model,
         "delivery_method": args.delivery_method,
     })
     created = ""
-    after = {field(r, "id") for r in rows(tool("list_automations", {}))}
+    after = {field(r, "id") for r in list_rows("list_automations")}
     new_ids = {i for i in after - before if i}
     if len(new_ids) != 1:
         print(f"ERROR expected exactly one new automation, found {len(new_ids)}: "
@@ -125,10 +135,13 @@ def main() -> int:
 
     prompt = open(TEMPLATE, encoding="utf-8").read()
     for token, value in (("{{TITLE}}", args.title), ("{{AUTOMATION_ID}}", aid),
+                         ("{{HARNESS_DISPLAY}}", h["display"]),
+                         ("{{TOOL_HINT}}", f" (its tools appear here as `{h['tool_prefix']}<tool>`)"
+                          if h["tool_prefix"] else ""),
                          ("{{RUNTIME}}", args.runtime), ("{{PURPOSE}}", spec["Purpose"] or args.title),
                          ("{{WORK}}", spec["Work"]),
                          ("{{DELIVERY}}", spec["Delivery"] or
-                          "Send the result with `mcp__zo__send_email_to_user` from inside this process, "
+                          f"Send the result with the zo server's `send_email_to_user` tool from inside this process, "
                           "under a `side-effect-intent` carrying `--verify '{\"kind\":\"email\",\"subject\":\"...\"}'`.")):
         prompt = prompt.replace(token, value)
     os.makedirs(args.prompts_dir, exist_ok=True)
@@ -137,7 +150,7 @@ def main() -> int:
         fh.write(prompt)
     print(f"prompt       {prompt_path}  ({len(prompt)} chars)")
 
-    cmd = f"bash {args.launcher} \\\n  --job {args.job} \\\n  --prompt-file {prompt_path}"
+    cmd = f"bash {args.launcher} \\\n  --job {args.job} \\\n  --harness {args.harness} \\\n  --prompt-file {prompt_path}"
     if args.preflight:
         cmd += f" \\\n  --preflight {args.preflight!r}"
     tool("edit_automation", {"automation_id": aid, "title": args.title,

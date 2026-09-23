@@ -109,9 +109,10 @@
 
   <div class="eyebrow">Zo Computer · Automation Architecture</div>
   <h1>The harness owns the loop.<br><em>Zo MCP becomes the tool server.</em></h1>
-  <p class="lede">A Zo-hosted automation borrows Claude as a <b>model</b>, so every turn is metered by the platform
-  and dies at the first ceiling it touches. Invert it: let the <b>Claude Code CLI own the agent loop</b> and expose
-  Zo as an MCP tool server. Two bridge scripts make the swap, and the resilience contract moves inside.</p>
+  <p class="lede">A Zo-hosted automation borrows a <b>model</b>, so every turn is metered by the platform and dies at
+  the first ceiling it touches. Invert it: let <b>any agent CLI own the loop</b> — Claude Code, Codex, Gemini, Kimi,
+  OpenCode, Hermes, or Pi — and expose Zo as an MCP tool server. Two bridge scripts make the swap, and the
+  resilience contract moves inside.</p>
 
   <div class="cols">
 
@@ -126,9 +127,9 @@
         <div class="arrow">↓</div>
         <div class="node dim"><div class="n">Persona config<small>instructions + model pointer + scopes</small></div><div class="r">config</div></div>
         <div class="arrow">↓</div>
-        <div class="node dim"><div class="n">BYOK provider → Claude ACP<small>pooled proxy, reclaimed when quiet</small></div><div class="r">model</div></div>
+        <div class="node dim"><div class="n">BYOK provider → harness ACP<small>pooled proxy, reclaimed when quiet</small></div><div class="r">model</div></div>
         <div class="arrow">↓</div>
-        <div class="node dim"><div class="n">Anthropic<small>claude-opus-5</small></div><div class="r">api</div></div>
+        <div class="node dim"><div class="n">Model vendor<small>Anthropic · OpenAI · Google · Moonshot …</small></div><div class="r">api</div></div>
       </div>
       <div class="caps">
         <div class="cap hit"><span class="ic">✕</span><div><b>120 s per model call.</b> <span>Hard ceiling on every single turn.</span></div></div>
@@ -141,23 +142,23 @@
 
     <div class="card good">
       <span class="tag good">● After · The harness hosts the loop</span>
-      <h2>Claude borrows the tools</h2>
+      <h2>The harness borrows the tools</h2>
       <div class="sub">The Zo turn lives ~1 second. The CLI reasons for as long as the work takes.</div>
       <div class="stack">
         <div class="node"><div class="n">Scheduler tick<small>same rrule, unchanged</small></div><div class="r">entry</div></div>
         <div class="arrow">↓</div>
         <div class="node zo"><div class="n"><code>bridge-launch.sh</code><small>Zo turn: launch, print one line, return in ~1 s</small></div><div class="r">≈1 s</div></div>
         <div class="arrow">↓ detach</div>
-        <div class="node owner"><div class="n">Detached <code>claude -p</code><small>owns the agent loop · subagents, skills, hooks, 1M context</small></div><div class="r">owns loop</div></div>
-        <div class="arrow two">⇅ mcp__zo__*</div>
+        <div class="node owner"><div class="n">Detached harness, <code>--harness &lt;h&gt;</code><small>claude -p · codex exec · gemini -p · kimi · opencode run · hermes · pi</small></div><div class="r">owns loop</div></div>
+        <div class="arrow two">⇅ zo MCP tools</div>
         <div class="node zo"><div class="n">Zo MCP tool server<small>103 tools over HTTP · email, SMS, files, shell, apps</small></div><div class="r">tools</div></div>
         <div class="arrow">↓</div>
-        <div class="node"><div class="n">Anthropic<small>subscription-metered, not Zo credits</small></div><div class="r">api</div></div>
+        <div class="node"><div class="n">Harness's own provider<small>subscription or API key, not Zo credits</small></div><div class="r">api</div></div>
       </div>
       <div class="caps">
         <div class="cap fix"><span class="ic">✓</span><div><s>120 s per model call</s> → <b>no per-call ceiling.</b> <span>Bounded by the bridge at 3600 s.</span></div></div>
         <div class="cap fix"><span class="ic">✓</span><div><s>~30 min session cap</s> → <b>bridge outlives the turn.</b> <span>The Zo turn already returned.</span></div></div>
-        <div class="cap fix"><span class="ic">✓</span><div><s>ACP pool reclaim</s> → <b>no ACP in the path.</b> <span>The CLI talks to the API directly.</span></div></div>
+        <div class="cap fix"><span class="ic">✓</span><div><s>ACP pool reclaim</s> → <b>no ACP in the path.</b> <span>The harness talks to its provider directly.</span></div></div>
       </div>
       <div class="verdict good"><b>Fails loudly.</b> Every run leaves a receipt with an <code>outcome</code>, and a bridge
       that dies mid-contract is swept and adjudicated.</div>
@@ -176,10 +177,10 @@
         <div class="outs"><span class="out">DETACHED</span><span class="out">SKIP overlap</span><span class="out">SKIP nowork</span><span class="out">ERROR</span></div>
       </div>
       <div class="script">
-        <div class="name">claude-code-detached.sh</div>
-        <p><code>setsid nohup</code> a <code>claude -p</code> that survives the turn. Exports <code>IS_SANDBOX=1</code>
-        (root cannot skip permissions without it), then <b>reconciles the contract after exit</b> and writes a receipt
-        — because a clean exit with an open contract is <code>ended_mid_contract</code>, not success.</p>
+        <div class="name">harness-detached.sh</div>
+        <p><code>setsid nohup</code> any of seven harnesses headless so it survives the turn, loading host secrets and each
+        harness's unattended-run fixes, then <b>reconciles the contract after exit</b> and writes a receipt — because a
+        clean exit with an open contract is <code>ended_mid_contract</code>, not success.</p>
         <div class="outs"><span class="out">outcome: ok</span><span class="out">cli_failed</span><span class="out">ended_mid_contract</span></div>
       </div>
     </div>
@@ -196,7 +197,7 @@
       <p class="note">The Zo-side turn budget becomes dead weight — there is no long Zo turn left to budget for.
       What survives is what matters: <b>never repeat an unresolved side effect.</b> <code>worker-start</code> is
       forbidden, because the bridge <b>is</b> the long-lived worker. Delivery happens from inside, through
-      <code>mcp__zo__send_email_to_user</code> — the automation's <code>delivery_method</code> only ever sees
+      the zo server's <code>send_email_to_user</code> — the automation's <code>delivery_method</code> only ever sees
       that one-second launch line.</p>
     </div>
   </div>
@@ -208,13 +209,13 @@
       <div class="d">Converted queue drain, inside the margin the 120 s per-call ceiling would have cut.</div></div>
     <div class="stat"><div class="k c">41 / 51</div><div class="l">Active automations bridge-hosted</div>
       <div class="d">Zero outstanding candidates. Weekly conformance audit emails only on drift.</div></div>
-    <div class="stat"><div class="k c">7</div><div class="l">Harnesses carry the Zo MCP server</div>
-      <div class="d">Claude Code, Codex, Gemini, Kimi, OpenCode, Hermes — plus Pi through its adapter.</div></div>
+    <div class="stat"><div class="k c">7</div><div class="l">Harnesses can own the loop</div>
+      <div class="d">Claude Code, Codex, Gemini, Kimi, OpenCode, Hermes, Pi — each wired to Zo MCP by the kit.</div></div>
   </div>
 
   <footer>
-    <div class="l"><b>zo-bridge-kit</b> — installs the bridge scripts, sets the standing rule, and scaffolds a
-    contract-carrying automation.<br>Keep an automation on the plain Zo path only when the whole run is one short
+    <div class="l"><b>zo-bridge-kit</b> — installs the harnesses, wires Zo MCP into each, bundles the resilience
+    runtime, sets the standing rule, and scaffolds contract-carrying automations.<br>Keep an automation on the plain Zo path only when the whole run is one short
     model turn. When in doubt, bridge it.</div>
     <div class="r">Marlandoj<br>2026-09-23</div>
   </footer>
