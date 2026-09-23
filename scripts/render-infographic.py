@@ -14,8 +14,8 @@ import os
 import sys
 
 KIT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEFAULT_HTML = os.path.join(KIT, "assets", "infographic", "bridge-architecture.html")
-DEFAULT_OUT = os.path.join(KIT, "assets", "infographic", "bridge-architecture.png")
+DEFAULT_HTML = os.path.join(KIT, "assets", "infographic", "bridge-workflows.html")
+DEFAULT_OUT = os.path.join(KIT, "assets", "infographic", "bridge-workflows.png")
 
 
 def main() -> int:

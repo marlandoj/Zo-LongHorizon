@@ -2,21 +2,39 @@
 
 **The harness owns the loop. Zo MCP becomes the tool server.**
 
-![Architecture: the harness owns the loop, Zo MCP is the tool server](assets/infographic/bridge-architecture.png)
+## The problem: Zo owns the loop, and Zo's clock ends it
+
+Out of the box, every Zo entry point — chat, SMS, email, a scheduled automation, a
+`/zo/ask` call — runs through the same Zo agent runtime. The runtime owns the agent loop and
+borrows a model through the persona's provider:
+
+```
+entry (chat | automation | /zo/ask)
+    -> Zo agent runtime          owns the loop, the turn, and the clock
+        -> persona config
+            -> provider -> model
+```
+
+Because the runtime owns the clock, three platform limits bound every piece of work:
+
+| Limit | What it bounds | What happens when it bites |
+|---|---|---|
+| **120 s per model call** | Every turn inside the runtime, including nested `/zo/ask` dispatches, consensus panels, and MoA lineups | The call is killed. A slow-reasoning model, or one long tool-heavy turn, ends the run. |
+| **30-minute chat session** | An interactive conversation | Long builds, research, and multi-step work are cut off mid-flight and must be resumed by hand. |
+| **60-minute run limit** | Any single run, scheduled or interactive | Work stops wherever it happens to be, often after the expensive part and before delivery. |
+
+All three fail **silently**. A scheduled automation that hits one usually sends no error and
+no email, and the dead run reads exactly like a quiet success. Choosing a faster model does
+not fix it: a nested call to a slow model still dies at 120 s.
+
+## The solution: the harness owns the loop, Zo becomes the tool server
+
+zo-bridge-kit inverts the stack. Instead of Zo owning the agent loop and borrowing a model,
+an **agent CLI owns the loop** and borrows Zo as an **MCP tool server**. The Zo turn shrinks
+to about a second: it launches a detached harness and returns. No Zo model call happens, so
+none of the three limits applies.
 
 ![Workflows: automation and chat both launch through bridge-launch.sh, a detached harness owns the loop, and Zo MCP delivers](assets/infographic/bridge-workflows.png)
-
-Zo Computer enforces a **120-second ceiling on every model call** and a session cap on every
-run. A scheduled automation whose work exceeds either one dies with nothing surfaced — no
-error, no email, and a dead run that reads exactly like a quiet success.
-
-This kit inverts the stack. Instead of Zo owning the agent loop and borrowing a model, an
-**agent CLI owns the loop** and borrows Zo as an **MCP tool server**. The Zo turn shrinks to
-about a second: it launches a detached harness and returns. No Zo model call happens, so no
-Zo model-call limit applies.
-
-Any of seven harnesses can host the loop — Claude Code, Codex CLI, Gemini CLI, Kimi Code
-CLI, OpenCode, Hermes Agent, or Pi — chosen per automation with `--harness`.
 
 ```
 scheduler tick -> bridge-launch.sh --harness <h>    Zo turn: ~1 s, prints one line, returns
@@ -24,6 +42,25 @@ scheduler tick -> bridge-launch.sh --harness <h>    Zo turn: ~1 s, prints one li
                          -> claude | codex | gemini | kimi | opencode | hermes | pi
                               <-> zo MCP            email, SMS, files, shell, apps
 ```
+
+| Limit | Under the bridge |
+|---|---|
+| 120 s per model call | Not in the path. Model calls go from the harness straight to its own provider. |
+| 30-minute chat session | A chat hands long work to a detached harness and replies in about a second; the result arrives by email or SMS. |
+| 60-minute run limit | The Zo run lasts about a second. The detached harness bounds itself at `BRIDGE_TIMEOUT` (default 3600 s, adjustable). |
+
+What the kit adds so the inversion is safe:
+
+- **Any of seven harnesses** hosts the loop — Claude Code, Codex CLI, Gemini CLI, Kimi Code
+  CLI, OpenCode, Hermes Agent, or Pi — chosen per automation with `--harness`.
+- **Zo MCP wired into every harness**, so a detached run keeps email, SMS, files, shell, and
+  app integrations.
+- **The resilience contract runs inside the bridge.** Because Zo now sees a one-second
+  success, the platform can no longer report a failure; the contract's checkpoints and
+  side-effect records let the recovery controller find a bridge that never came back, and
+  never repeat an email or trade whose outcome is uncertain.
+- **Overlap and no-work guards** in the launcher, so a slow run is not started twice and an
+  empty queue costs nothing.
 
 ## Measured, not theoretical
 

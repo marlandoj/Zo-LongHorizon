@@ -26,7 +26,8 @@ in the middle layer.
 | Limit | Where it bites | What it looks like when it bites |
 |---|---|---|
 | **120 s per model call** | Every single turn inside the runtime, including nested `/zo/ask` dispatches, consensus panels, and MoA lineups | The run stops. Frequently no error email. A delivery-bearing automation simply never delivers. |
-| **Session cap** | The whole run | Work is cut off mid-flight, often after the expensive part and before the delivery. |
+| **30-minute chat session** | An interactive conversation | Long work is cut off mid-flight and must be resumed by hand. |
+| **60-minute run limit** | Any single run, scheduled or interactive | Work is cut off mid-flight, often after the expensive part and before the delivery. |
 | **ACP pool reclaim** | The BYOK proxy under a quiet run | The proxy is taken back underneath a run that was merely thinking. |
 
 The common failure mode across all three is that they are **silent**. A dead run and a
@@ -60,7 +61,7 @@ mode, a way to skip interactive approvals, and an MCP client that can reach
 `scripts/smoke-harnesses.py` proves it per host with a real Zo tool call.
 
 What you gain: no per-call ceiling (the bridge bounds itself at `BRIDGE_TIMEOUT`, default
-3600 s), no session cap, no ACP in the path, the full harness loop — whatever subagents,
+3600 s), no chat-session or run-length limit, no ACP in the path, the full harness loop — whatever subagents,
 skills, hooks, and context management that harness has — and the harness's own provider
 metering (often a subscription) rather than platform credits.
 
