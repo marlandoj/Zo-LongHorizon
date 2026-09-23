@@ -38,7 +38,7 @@ def main() -> int:
 
     with sync_playwright() as p:
         browser = p.chromium.launch(args=["--no-sandbox", "--font-render-hinting=none"])
-        page = browser.new_page(viewport={"width": args.width, "height": 1200},
+        page = browser.new_page(viewport={"width": args.width, "height": 100},
                                 device_scale_factor=args.scale)
         page.goto(f"file://{os.path.abspath(args.html)}", wait_until="load")
         page.wait_for_timeout(600)

@@ -1,0 +1,37 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Zo's original workflow</title>
+<link rel="stylesheet" href="_diagram-base.css">
+<style>
+:root{--accent:var(--rose);--glow1:rgba(255,107,138,.13);--glow2:rgba(255,184,77,.10)}
+.node.rt{flex:1.45;border-color:rgba(255,107,138,.5);background:linear-gradient(180deg,rgba(255,107,138,.12),var(--navy2));box-shadow:0 26px 60px -40px rgba(255,107,138,.7)}
+.node.rt .k{color:var(--rose)}
+.limits{display:flex;flex-direction:column;gap:7px;margin-top:12px}
+.lim{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mute);padding:7px 10px;border-radius:9px;background:rgba(255,107,138,.07);border:1px solid rgba(255,107,138,.28)}
+.lim b{font-family:"DejaVu Sans Mono",monospace;color:var(--rose);font-size:13.5px;min-width:62px}
+.node.entry .k{color:var(--cyan)}
+.node.model .k{color:var(--amber)}
+.bracket{margin-top:14px;display:flex;align-items:center;gap:12px;font-size:12.5px;color:var(--rose);font-weight:700;letter-spacing:.06em}
+.bracket::before,.bracket::after{content:"";height:1px;flex:1;background:rgba(255,107,138,.4)}
+</style></head><body><div class="page">
+<div class="eyebrow">The problem</div>
+<h1>Zo's original workflow: the runtime owns the loop</h1>
+<p class="lede">Every entry point funnels through the Zo agent runtime, which <b>owns the loop, the turn, and the clock</b> and only borrows a model. Its limits bound all work.</p>
+<div class="row">
+  <div class="node entry"><div class="k">Entry</div><div class="t">Any entry point</div>
+    <div class="pills"><span class="pill">chat</span><span class="pill">automation</span><span class="pill">/zo/ask</span></div></div>
+  <div class="arr">&rarr;</div>
+  <div class="node rt"><div class="k">Owns the loop</div><div class="t">Zo agent runtime</div>
+    <div class="d">Owns the loop, the turn, and the clock.</div>
+    <div class="limits">
+      <div class="lim"><b>120 s</b>per model call, nested dispatches included</div>
+      <div class="lim"><b>30 min</b>per chat session</div>
+      <div class="lim"><b>60 min</b>per run, scheduled or interactive</div>
+    </div></div>
+  <div class="arr">&rarr;</div>
+  <div class="node"><div class="k">Config</div><div class="t">Persona config</div>
+    <div class="d">Instructions, tool scopes, and a model pointer. No runtime of its own.</div></div>
+  <div class="arr">&rarr;</div>
+  <div class="node model"><div class="k">Borrowed</div><div class="t">Provider &rarr; model</div>
+    <div class="d">Called one turn at a time, each turn inside the 120 s ceiling.</div></div>
+</div>
+<div class="bracket">When a limit bites, the run is killed silently, often after the expensive part and before delivery</div>
+</div></body></html>

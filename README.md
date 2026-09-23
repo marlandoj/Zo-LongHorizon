@@ -8,12 +8,7 @@ Out of the box, every Zo entry point — chat, SMS, email, a scheduled automatio
 `/zo/ask` call — runs through the same Zo agent runtime. The runtime owns the agent loop and
 borrows a model through the persona's provider:
 
-```
-entry (chat | automation | /zo/ask)
-    -> Zo agent runtime          owns the loop, the turn, and the clock
-        -> persona config
-            -> provider -> model
-```
+![Zo's original workflow: entry points flow through the Zo agent runtime, which owns the loop and enforces the 120 s, 30 min and 60 min limits, then persona config, then provider and model](assets/infographic/zo-original-workflow.png)
 
 Because the runtime owns the clock, three platform limits bound every piece of work:
 
@@ -36,12 +31,7 @@ none of the three limits applies.
 
 ![Workflows: automation and chat both launch through bridge-launch.sh, a detached harness owns the loop, and Zo MCP delivers](assets/infographic/bridge-workflows.png)
 
-```
-scheduler tick -> bridge-launch.sh --harness <h>    Zo turn: ~1 s, prints one line, returns
-                    -> harness-detached.sh          setsid nohup, outlives the turn
-                         -> claude | codex | gemini | kimi | opencode | hermes | pi
-                              <-> zo MCP            email, SMS, files, shell, apps
-```
+![Bridge launch chain: a scheduler tick runs bridge-launch.sh inside a ~1 s Zo turn; harness-detached.sh detaches any of seven harnesses, which own the loop and call zo MCP for email, SMS, files, shell and apps](assets/infographic/bridge-launch-chain.png)
 
 | Limit | Under the bridge |
 |---|---|

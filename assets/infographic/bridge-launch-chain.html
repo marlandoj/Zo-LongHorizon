@@ -1,0 +1,52 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Bridge launch chain</title>
+<link rel="stylesheet" href="_diagram-base.css">
+<style>
+:root{--accent:var(--emerald);--glow1:rgba(47,217,160,.12);--glow2:rgba(63,200,255,.12)}
+.zones{display:grid;grid-template-columns:1fr 1.9fr;gap:22px;margin-top:28px}
+.zone{border:1.5px dashed var(--line);border-radius:20px;padding:34px 18px 18px;position:relative}
+.zone .zl{position:absolute;top:-11px;left:18px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:800;padding:3px 10px;border-radius:999px;background:var(--navy)}
+.zone.zo{border-color:rgba(255,184,77,.45)} .zone.zo .zl{color:var(--amber);border:1px solid rgba(255,184,77,.45)}
+.zone.det{border-color:rgba(47,217,160,.45)} .zone.det .zl{color:var(--emerald);border:1px solid rgba(47,217,160,.45)}
+.col{display:flex;flex-direction:column}
+.down{height:34px;display:flex;align-items:center;justify-content:center;color:var(--faint);font-size:22px}
+.zo .node .k{color:var(--amber)}
+.chip{align-self:flex-start;margin-top:10px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:5px 9px;border-radius:8px;color:var(--emerald);background:rgba(47,217,160,.1);border:1px solid rgba(47,217,160,.3)}
+.lines{margin-top:10px;font-family:"DejaVu Sans Mono",monospace;font-size:11.5px;color:var(--mute);line-height:1.7}
+.lines b{color:var(--emerald)}
+.det .row{margin-top:0}
+.node.hd .k{color:var(--cyan)}
+.node.h{flex:1.35;border-color:rgba(47,217,160,.5);background:linear-gradient(94deg,rgba(47,217,160,.15),rgba(63,200,255,.06));box-shadow:0 26px 60px -40px rgba(47,217,160,.7)}
+.node.h .k{color:var(--emerald)}
+.node.z{border-color:rgba(63,200,255,.4);background:rgba(63,200,255,.07)}
+.node.z .k{color:var(--cyan)}
+.node.z .pill{font-family:"Inter",sans-serif;font-weight:600}
+.bi{color:var(--cyan)}
+.handoff{position:absolute;left:calc(34.5% - 6px);top:50%;}
+</style></head><body><div class="page">
+<div class="eyebrow">The solution</div>
+<h1>The bridge: the harness owns the loop, Zo is the tool server</h1>
+<p class="lede">The Zo turn only launches and returns in about a second. The work runs in a <b>detached harness</b> that calls back into Zo over MCP for delivery and tools.</p>
+<div class="zones">
+  <div class="zone zo"><span class="zl">Zo turn &middot; ~1 s</span><div class="col">
+    <div class="node"><div class="k">Trigger</div><div class="t">Scheduler tick</div><div class="d">Or a chat persona handing off long work.</div></div>
+    <div class="down">&darr;</div>
+    <div class="node"><div class="k">Launcher</div><div class="t"><code>bridge-launch.sh --harness &lt;h&gt;</code></div>
+      <div class="d">Prints one line, then returns.</div>
+      <div class="lines"><b>DETACHED</b> &middot; SKIP overlap &middot; SKIP nowork &middot; ERROR</div></div>
+  </div></div>
+  <div class="zone det"><span class="zl">Detached &middot; outlives the turn &middot; up to 3600 s</span>
+    <div class="row">
+      <div class="node hd"><div class="k">Runner</div><div class="t"><code>harness-detached.sh</code></div>
+        <div class="d"><code>setsid nohup</code>, so the process survives after the Zo turn ends. Writes a receipt with the outcome.</div></div>
+      <div class="arr">&rarr;</div>
+      <div class="node h"><div class="k">Owns the loop</div><div class="t">Any harness</div>
+        <div class="pills"><span class="pill">claude</span><span class="pill">codex</span><span class="pill">gemini</span><span class="pill">kimi</span><span class="pill">opencode</span><span class="pill">hermes</span><span class="pill">pi</span></div>
+        <div class="d">Runs the work and the resilience contract.</div></div>
+      <div class="arr bi">&#8644;<small>MCP</small></div>
+      <div class="node z"><div class="k">Tool server</div><div class="t">zo MCP</div>
+        <div class="pills"><span class="pill">email</span><span class="pill">SMS</span><span class="pill">files</span><span class="pill">shell</span><span class="pill">apps</span></div></div>
+    </div>
+  </div>
+</div>
+<div class="foot">Model calls go from the harness straight to its own provider, so the 120 s ceiling, 30 min chat window, and 60 min run limit are not in the path.</div>
+</div></body></html>
