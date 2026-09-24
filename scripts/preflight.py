@@ -39,6 +39,7 @@ def main() -> int:
     ap.add_argument("--run-dir", default=DEFAULT_RUN_DIR, help="bridge receipt directory")
     ap.add_argument("--skip-mcp", action="store_true", help="skip the live Zo MCP probe")
     ap.add_argument("--harness", default="", help="comma-separated harnesses that must be installed")
+    ap.add_argument("--skip-personas", action="store_true", help="do not validate harness personas")
     args = ap.parse_args()
 
     from zolib import harnesses, select
@@ -73,6 +74,27 @@ def main() -> int:
         args.runtime if os.path.isfile(args.runtime) else f"missing: {args.runtime} (install.py --apply installs the bundled copy)",
         required=True,
     )
+
+    if args.skip_personas:
+        check("harness personas", True, "skipped", required=False)
+    else:
+        try:
+            from zolib import field, list_rows
+            existing = {field(row, "name") for row in list_rows("list_personas")}
+            expected = set()
+            missing_personas = set()
+            for name, h in reg.items():
+                if name not in found:
+                    continue
+                names = {h["persona"], *h.get("persona_aliases", [])}
+                expected.add(h["persona"])
+                if not names & existing:
+                    missing_personas.add(h["persona"])
+            check("harness personas", not missing_personas,
+                  "registered: " + ", ".join(sorted(expected)) if not missing_personas
+                  else "missing: " + ", ".join(sorted(missing_personas)) + " (run install.py --apply)")
+        except SystemExit as exc:
+            check("harness personas", False, str(exc).splitlines()[0])
 
     if args.skip_mcp:
         check("zo MCP reachable", True, "skipped", required=False)

@@ -73,7 +73,7 @@ A fresh Zo host needs nothing but this repository:
 | Zo MCP in every harness | `scripts/configure-zo-mcp.py` writes each config; `docs/ZO-MCP-SETUP.md` explains the token |
 | The run contract and recovery controller | bundled in `vendor/automation-resilience/`, installed by `scripts/install.py` |
 | The launcher and detached runner | `assets/bridge-launch.sh`, `assets/harness-detached.sh` |
-| Harnesses as Zo personas | `scripts/register-personas.py` |
+| Harnesses as Zo personas | `scripts/register-personas.py` | Create a Zo persona per installed harness |
 | Bridge hosting as the default for new automations | `scripts/set-bridge-rule.py` |
 
 ## Setup
@@ -152,9 +152,9 @@ python3 scripts/convert-to-bridge.py --automation-id <full-uuid> --job <slug> --
 | `scripts/install-harnesses.py` | Install the agent CLIs. |
 | `scripts/configure-zo-mcp.py` | Write and verify the `zo` MCP entry in every harness config. |
 | `scripts/smoke-harnesses.py` | Prove each harness can run detached and complete a Zo MCP call. |
-| `scripts/install.py` | Install launcher, runner, and runtime; refuses to clobber a differing live script. |
-| `scripts/preflight.py` | Check a host is ready. |
-| `scripts/register-personas.py` | Create a Zo persona per harness. |
+| `scripts/install.py` | Install launcher, runner, and runtime |
+| `scripts/preflight.py` | Check a host is ready |
+| `scripts/register-personas.py` | Create a Zo persona per installed harness |
 | `scripts/set-bridge-rule.py` | Make bridge hosting the default for new automations. |
 | `scripts/new-bridge-automation.py` | Scaffold a new bridge-hosted automation. |
 | `scripts/convert-to-bridge.py` | Move an existing automation onto the bridge. |
