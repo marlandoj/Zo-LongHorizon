@@ -32,6 +32,7 @@ import argparse
 import difflib
 import os
 import shutil
+import subprocess
 import sys
 import time
 
@@ -81,6 +82,8 @@ def main() -> int:
     ap.add_argument("--apply", action="store_true", help="write changes")
     ap.add_argument("--force", action="store_true", help="replace an existing file whose contents differ")
     ap.add_argument("--quiet-diff", action="store_true", help="list differing files without printing diffs")
+    ap.add_argument("--skip-personas", action="store_true",
+                    help="do not register personas after a full installation")
     args = ap.parse_args()
 
     sources: dict[str, str] = {}
@@ -117,6 +120,8 @@ def main() -> int:
         print(("exists     " if os.path.isdir(path) else "mkdir      ") + f"{path}  ({label})")
 
     if not args.apply:
+        if args.only == "all" and not args.skip_personas:
+            print("plan       register installed harness personas in Zo")
         print("\ndry run — nothing written. Re-run with --apply.")
         return 0
     if blocked:
@@ -148,6 +153,18 @@ def main() -> int:
         os.makedirs(path, exist_ok=True)
 
     print(f"\nLauncher path for automation instructions:\n  {os.path.join(args.target, 'bridge-launch.sh')}")
+
+    if args.only == "all" and not args.skip_personas:
+        print("\nRegistering installed harness personas in Zo...")
+        result = subprocess.run(
+            [sys.executable, os.path.join(KIT, "scripts", "register-personas.py"), "--apply"],
+            check=False,
+        )
+        if result.returncode:
+            print("ERROR persona registration failed; the runtime installation succeeded, but setup is incomplete.",
+                  file=sys.stderr)
+            return result.returncode
+
     return 0
 
 
