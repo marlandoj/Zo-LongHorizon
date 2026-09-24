@@ -175,3 +175,12 @@ token. Each harness needs its own provider login or API key.
 
 The repository root is the skill directory: `SKILL.md` sits at the top level and the
 directory name matches its `name:` field.
+
+## Provider terms
+
+The kit runs official CLIs on your own host with your own credentials. Under Anthropic's [Consumer Terms](https://www.anthropic.com/legal/consumer-terms):
+
+- **Your login, your billing.** Authenticate each harness yourself (`claude login`, or your own API key). The kit installs the official CLIs unmodified and never bundles, shares, or resells credentials.
+- **Headless is supported.** `claude -p` is a supported paid-plan path (the [Agent SDK](https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan)). It is metered separately from interactive usage; Anthropic has paused that separate billing as of September 2026, and throttling may still apply.
+- **No hosted service on a subscription login.** The terms let end users sign in to the unmodified client themselves, and forbid operating a hosted product for them off that login. This kit automates your work on your host; if you ever run it for end users, use an API key under your own agreement.
+- **Usage Policy applies.** Unattended runs are bound by the [Anthropic Usage Policy](https://www.anthropic.com/legal/aup); every other harness follows its provider's equivalent terms.
