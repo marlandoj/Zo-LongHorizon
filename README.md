@@ -1,6 +1,6 @@
 # Zo-LongHorizon
 
-![Zo's original workflow: the runtime owns the agent loop and the clock](assets/infographic/zo-original-workflow.png)
+![Zo-LongHorizon: the harness owns the loop, Zo MCP is the tool server](assets/hero.png)
 
 **The harness owns the loop. Zo MCP becomes the tool server.**
 

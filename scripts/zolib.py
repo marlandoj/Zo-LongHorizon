@@ -1,4 +1,4 @@
-"""Shared helpers for the Zo bridge kit: MCP-over-HTTP calls and Python-repr parsing.
+"""Shared helpers for Zo-LongHorizon: MCP-over-HTTP calls and Python-repr parsing.
 
 Zo's MCP tools return Python `repr()` strings rather than JSON for automations, rules,
 and personas. Values switch from single to double quotes whenever they contain an
