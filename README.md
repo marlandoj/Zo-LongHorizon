@@ -1,4 +1,6 @@
-# zo-bridge-kit
+# Zo-LongHorizon
+
+![Zo's original workflow: the runtime owns the agent loop and the clock](assets/infographic/zo-original-workflow.png)
 
 **The harness owns the loop. Zo MCP becomes the tool server.**
 
@@ -24,14 +26,14 @@ not fix it: a nested call to a slow model still dies at 120 s.
 
 ## The solution: the harness owns the loop, Zo becomes the tool server
 
-zo-bridge-kit inverts the stack. Instead of Zo owning the agent loop and borrowing a model,
+Zo-LongHorizon inverts the stack. Instead of Zo owning the agent loop and borrowing a model,
 an **agent CLI owns the loop** and borrows Zo as an **MCP tool server**. The Zo turn shrinks
 to about a second: it launches a detached harness and returns. No Zo model call happens, so
 none of the three limits applies.
 
-![Workflows: automation and chat both launch through bridge-launch.sh, a detached harness owns the loop, and Zo MCP delivers](assets/infographic/bridge-workflows.png)
+![Two doors, one bridge: automation and chat workflows](assets/infographic/bridge-workflows.png)
 
-![Bridge launch chain: a scheduler tick runs bridge-launch.sh inside a ~1 s Zo turn; harness-detached.sh detaches any of seven harnesses, which own the loop and call zo MCP for email, SMS, files, shell and apps](assets/infographic/bridge-launch-chain.png)
+![The bridge launch chain: scheduler, launcher, detached harness, Zo MCP](assets/infographic/bridge-launch-chain.png)
 
 | Limit | Under the bridge |
 |---|---|
@@ -77,8 +79,8 @@ A fresh Zo host needs nothing but this repository:
 ## Setup
 
 ```bash
-git clone https://github.com/marlandoj/zo-bridge-kit.git /home/workspace/Skills/zo-bridge-kit
-cd /home/workspace/Skills/zo-bridge-kit
+git clone https://github.com/marlandoj/Zo-LongHorizon.git /home/workspace/Skills/zo-longhorizon
+cd /home/workspace/Skills/zo-longhorizon
 ```
 
 **1. Zo MCP token.** In Zo, create an access token (Settings → Advanced → Access Tokens) and
@@ -184,6 +186,7 @@ The kit runs official CLIs on your own host with your own credentials. Under Ant
 - **Headless is supported.** `claude -p` is a supported paid-plan path (the [Agent SDK](https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan)). It is metered separately from interactive usage; Anthropic has paused that separate billing as of September 2026, and throttling may still apply.
 - **No hosted service on a subscription login.** The terms let end users sign in to the unmodified client themselves, and forbid operating a hosted product for them off that login. This kit automates your work on your host; if you ever run it for end users, use an API key under your own agreement.
 - **Usage Policy applies.** Unattended runs are bound by the [Anthropic Usage Policy](https://www.anthropic.com/legal/aup); every other harness follows its provider's equivalent terms.
+
 ## Source and attribution
 
 The recovery contract this kit builds on (durable state per occurrence, checkpoint and handoff budgets, side-effect intent/resolve, registered workers) is adapted from the `zo-mitigations` community toolkit by Provisional9448 (https://github.com/Provisional9448/zo-mitigations). That project ships no license, so the runtime here was reimplemented rather than vendored. The bridge launcher, harness registration, installers, and documentation in this repository are original work.

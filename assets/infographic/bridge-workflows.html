@@ -21,6 +21,7 @@
 
   .eyebrow{font-size:13px; letter-spacing:.24em; text-transform:uppercase; color:var(--cyan);
     font-weight:700; display:flex; align-items:center; gap:13px}
+  .eyebrow .brand{text-transform:none; letter-spacing:.06em; font-weight:800}
   .eyebrow::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba(63,200,255,.5),transparent)}
   h1{font-size:63px; line-height:1.02; letter-spacing:-.033em; font-weight:800; margin:20px 0 0}
   h1 em{font-style:normal;background:linear-gradient(95deg,var(--amber),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -99,7 +100,7 @@
 </head>
 <body>
 <div class="page">
-  <div class="eyebrow">zo-bridge-kit · workflows</div>
+  <div class="eyebrow"><span class="brand">Zo-LongHorizon</span> · workflows</div>
   <h1>Two doors in. <em>One bridge</em> does the work.</h1>
   <p class="lede">A scheduled automation and a chat request take the same path: the Zo turn <b>launches and returns in about a second</b>, a detached agent CLI <b>owns the loop for as long as the job needs</b>, and Zo comes back in as the <b>MCP tool server</b> that sends the email, texts the result, and writes the files.</p>
 
@@ -185,7 +186,7 @@
   </div>
 
   <footer>
-    <div class="l"><b>zo-bridge-kit</b>: the launcher, the detached runner, Zo MCP setup for every harness,<br>and the bundled resilience runtime. <code>bridge-launch.sh</code> · <code>harness-detached.sh</code> · <code>smoke-harnesses.py</code></div>
+    <div class="l"><b>Zo-LongHorizon</b>: the launcher, the detached runner, Zo MCP setup for every harness,<br>and the bundled resilience runtime. <code>bridge-launch.sh</code> · <code>harness-detached.sh</code> · <code>smoke-harnesses.py</code></div>
     <div class="r">Harness owns the loop<br>Zo serves the tools</div>
   </footer>
 </div>

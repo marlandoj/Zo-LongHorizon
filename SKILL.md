@@ -1,12 +1,12 @@
 ---
-name: zo-bridge-kit
+name: zo-longhorizon
 description: Stand up and operate harness-hosted Zo automations on any of seven agent CLIs (Claude Code, Codex, Gemini, Kimi, OpenCode, Hermes, Pi) — install the harnesses, wire the Zo MCP server into each, install the bundled automation-resilience runtime and detached bridge, register harness personas, set the standing rule that makes bridge hosting the default, and scaffold or convert contract-carrying automations. Use when setting this pattern up on a Zo host, when an automation dies silently at Zo's 120 s per-call ceiling or session cap, or when a scheduled run must outlive its Zo turn.
 compatibility: Created for Zo Computer. Requires Python 3.11+, bun, npm, and a Zo access token stored as ZO_MCP_API_KEY.
 metadata:
   author: marlandoj.zo.computer
-  repository: https://github.com/marlandoj/zo-bridge-kit
+  repository: https://github.com/marlandoj/Zo-LongHorizon
 ---
-# Zo Bridge Kit
+# Zo-LongHorizon
 
 Zo enforces a **120 s ceiling on every model call** and a session cap on every run. An
 automation whose work exceeds either dies with nothing surfaced — no error, no email, and a
