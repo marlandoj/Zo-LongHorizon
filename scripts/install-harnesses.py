@@ -42,14 +42,17 @@ def run(cmd: list[str]) -> bool:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--harness", default="all", help="comma-separated list, default all")
-    ap.add_argument("--apply", action="store_true", help="install missing harnesses")
+    ap.add_argument("--harness", default="", help="comma-separated harnesses to report or install")
+    ap.add_argument("--apply", action="store_true", help="install selected missing harnesses")
     ap.add_argument("--upgrade", action="store_true", help="reinstall harnesses that are already present")
     args = ap.parse_args()
 
     reg = harnesses()["harnesses"]
+    if args.apply and not args.harness:
+        ap.error("--apply requires an explicit --harness selection; no harness is installed by default")
+    selected = select(args.harness) if args.harness else list(reg)
     failed = 0
-    for name in select(args.harness):
+    for name in selected:
         h = reg[name]
         path = shutil.which(h["binary"])
         state = f"{version(h['version'])}  ({path})" if path else "missing"
