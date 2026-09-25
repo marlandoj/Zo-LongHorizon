@@ -62,6 +62,17 @@ class InstallPersonaTests(unittest.TestCase):
         self.assertEqual(command[-1], "--apply")
         self.assertTrue(command[-2].endswith("register-personas.py"))
 
+    def test_apply_does_not_install_harnesses(self):
+        with tempfile.TemporaryDirectory() as target, \
+             mock.patch.object(sys, "argv", ["install.py", "--apply", "--target", target]), \
+             mock.patch.object(install.shutil, "which", side_effect=lambda binary: f"/usr/bin/{binary}"), \
+             mock.patch.object(install.subprocess, "run") as run, \
+             contextlib.redirect_stdout(io.StringIO()):
+            run.return_value.returncode = 0
+            self.assertEqual(install.main(), 0)
+        commands = [call.args[0] for call in run.call_args_list]
+        self.assertFalse(any("install-harnesses.py" in command for command in commands))
+
     def test_skip_personas_preserves_opt_out(self):
         with tempfile.TemporaryDirectory() as target, \
              mock.patch.object(sys, "argv", ["install.py", "--apply", "--only", "bridge", "--skip-personas", "--target", target]), \
